@@ -1,0 +1,114 @@
+:root {
+  /* --- Tinta: rampa fria, no negro puro salvo el borde de pantalla --- */
+  --ink-0: #08080a;
+  --ink-1: #101013;
+  --ink-2: #17171b;
+  --ink-3: #1f1f24;
+  --ink-4: #2a2a30;
+
+  /* Alias que conserva el codigo existente */
+  --bg-black: var(--ink-0);
+  --bg-base: var(--ink-0);
+  --bg-elev-1: var(--ink-1);
+  --bg-elev-2: var(--ink-2);
+  --bg-elev-3: var(--ink-3);
+  --bg-hover: var(--ink-3);
+  --bg-card: var(--ink-1);
+  --bg-card-quiet: rgba(255, 255, 255, 0.045);
+
+  /* --- Acento unico: champagne. Es la identidad, no se multiplica. --- */
+  --accent: #e8dead;
+  --accent-strong: #f4edd0;
+  --accent-pressed: #c9bc85;
+  --accent-dim: #8a8262;
+  --accent-faint: rgba(232, 222, 173, 0.13);
+  --accent-faint-soft: rgba(232, 222, 173, 0.06);
+  --accent-ink: #14140f;
+
+  /* --- Texto: grises de Apple --- */
+  --text: #f5f5f7;
+  --text-sub: #a1a1a6;
+  --text-dim: #6e6e73;
+
+  /* --- Hairlines y materiales --- */
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --border: var(--hairline);
+  --border-strong: var(--hairline-strong);
+
+  /* Luz de 1px arriba: lo que hace que una superficie parezca material */
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --edge-light-strong: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  --glass: rgba(23, 23, 27, 0.72);
+  --glass-blur: saturate(180%) blur(20px);
+
+  /* Vidrio de superficie.
+     La definicion de cristal sale de cuatro cosas juntas: cuerpo translucido,
+     canto superior encendido, canto inferior en sombra, y un bisel lateral
+     tenue. Sin el bisel la superficie se lee plana por mucho blur que lleve. */
+  --pane: rgba(255, 255, 255, 0.055);
+  --pane-hover: rgba(255, 255, 255, 0.095);
+  --pane-border: rgba(255, 255, 255, 0.17);
+  --pane-border-hover: rgba(255, 255, 255, 0.3);
+  --pane-edges: inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 1px 0 0 rgba(255, 255, 255, 0.09), inset -1px 0 0 rgba(255, 255, 255, 0.09),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+  --pane-edges-hover: inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 1px 0 0 rgba(255, 255, 255, 0.14), inset -1px 0 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+
+  /* Brillo especular: la banda de luz que cruza el cristal en diagonal. */
+  --pane-sheen: linear-gradient(
+    134deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.04) 22%,
+    transparent 46%
+  );
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.48);
+  --shadow-xl: 0 24px 68px rgba(0, 0, 0, 0.6);
+
+  --success: #30d158;
+  --warning: #ffd60a;
+  --error: #ff453a;
+
+  /* --- Radios: escala intencional, no un 8px universal --- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 500px;
+
+  /* --- Tipografia: una sola familia; mono solo donde alinea caracteres --- */
+  --font-sans: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, Menlo, monospace;
+
+  /* Tracking negativo creciente: cuanto mas grande, mas ajustado */
+  --track-display: -0.045em;
+  --track-title: -0.028em;
+  --track-body: -0.011em;
+  --track-micro: 0.08em;
+
+  /* --- Movimiento: curvas cortas con acento de resorte --- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 140ms;
+  --dur: 240ms;
+  --dur-slow: 420ms;
+
+  --sidebar-w: 264px;
+  --content-max: 1120px;
+  --gutter: 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+}
