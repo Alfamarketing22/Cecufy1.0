@@ -15,12 +15,31 @@ export function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMenu = () => setMobileOpen(false);
 
-  // Bloquea el scroll de la pagina mientras el cajon esta abierto: sin esto,
-  // scrollear detras del menu superpuesto en mobile producia un efecto
-  // visual de contenido duplicado.
+  // Bloquea el scroll de la pagina mientras el cajon esta abierto.
+  // `overflow: hidden` en el body no alcanza en iOS Safari: el fondo sigue
+  // "rebotando" un poco al tocar (rubber-banding), y eso es lo que hace
+  // que la PWA muestre de nuevo la barra del navegador. La forma que
+  // funciona de verdad es fijar el body en su posicion actual y restaurar
+  // el scroll al cerrar.
   useEffect(() => {
-    document.body.classList.toggle("no-scroll", mobileOpen);
-    return () => document.body.classList.remove("no-scroll");
+    if (!mobileOpen) return;
+
+    const scrollY = window.scrollY;
+    const { body } = document;
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.classList.add("no-scroll");
+
+    return () => {
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      body.classList.remove("no-scroll");
+      window.scrollTo(0, scrollY);
+    };
   }, [mobileOpen]);
 
   // Cerrar con Escape, como cualquier panel superpuesto.

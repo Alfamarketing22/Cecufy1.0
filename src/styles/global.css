@@ -152,6 +152,7 @@ h3 {
    menu superpuesto. */
 body.no-scroll {
   overflow: hidden;
+  width: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
