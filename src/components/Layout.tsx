@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { Logo } from "./Logo";
 import { Icon } from "./Icon";
@@ -13,12 +13,31 @@ const NAV_ITEMS = [
 
 export function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const closeMenu = () => setMobileOpen(false);
+
+  // Bloquea el scroll de la pagina mientras el cajon esta abierto: sin esto,
+  // scrollear detras del menu superpuesto en mobile producia un efecto
+  // visual de contenido duplicado.
+  useEffect(() => {
+    document.body.classList.toggle("no-scroll", mobileOpen);
+    return () => document.body.classList.remove("no-scroll");
+  }, [mobileOpen]);
+
+  // Cerrar con Escape, como cualquier panel superpuesto.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
 
   return (
     <div className="app-shell">
-      <aside className="sidebar" style={{ display: mobileOpen ? "flex" : undefined }}>
+      <aside className={`sidebar${mobileOpen ? " sidebar-open" : ""}`}>
         <div className="sidebar-logo">
-          <Link to="/" className="logo-link" aria-label="Ir al inicio" onClick={() => setMobileOpen(false)}>
+          <Link to="/" className="logo-link" aria-label="Ir al inicio" onClick={closeMenu}>
             <Logo size={44} />
           </Link>
         </div>
@@ -29,7 +48,7 @@ export function Layout() {
               to={item.to}
               end={item.end}
               className={({ isActive }) => `sidebar-link${isActive ? " active" : ""}`}
-              onClick={() => setMobileOpen(false)}
+              onClick={closeMenu}
             >
               <Icon name={item.icon} size={20} className="nav-icon" />
               {item.label}
@@ -42,10 +61,21 @@ export function Layout() {
         </div>
       </aside>
 
+      <div
+        className={`sidebar-backdrop${mobileOpen ? " sidebar-backdrop-open" : ""}`}
+        onClick={closeMenu}
+        aria-hidden="true"
+      />
+
       <div className="app-main">
         <div className="topbar">
           <span className="topbar-left">
-            <button className="icon-btn" aria-label="Abrir menu" onClick={() => setMobileOpen((v) => !v)}>
+            <button
+              className="icon-btn"
+              aria-label={mobileOpen ? "Cerrar menu" : "Abrir menu"}
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen((v) => !v)}
+            >
               <Icon name="menu" size={20} />
             </button>
           </span>

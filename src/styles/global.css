@@ -97,9 +97,67 @@ h3 {
   box-shadow: var(--edge-light);
 }
 
+/* En mobile el menu es un cajon (drawer) real: posicion fija, fuera del
+   grid de la pagina, animado con transform. Antes se mostraba con un
+   display inline que lo insertaba dentro del grid como bloque "sticky"
+   de casi toda la altura de pantalla — al scrollear con el menu abierto
+   interactuaba mal con el resto del contenido y se veia como si todo se
+   duplicara. Con position:fixed queda totalmente desacoplado del scroll
+   de la pagina. */
 @media (max-width: 900px) {
   .sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: min(82vw, 300px);
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: var(--shadow-xl);
+    transform: translateX(-100%);
+    transition: transform var(--dur) var(--ease-out);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .sidebar-backdrop.sidebar-backdrop-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Mientras el cajon esta abierto, la pagina de atras no se mueve: es lo
+   que evita cualquier interaccion rara entre el scroll de la pagina y el
+   menu superpuesto. */
+body.no-scroll {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar-backdrop {
+    transition: none;
   }
 }
 
