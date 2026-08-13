@@ -1,8 +1,8 @@
-import type { Request, Response } from "express";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getStore } from "../../db/store";
 import { requireAdmin } from "../../db/adminAuth";
 
-export default async function handler(req: Request, res: Response) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   const store = await getStore();
   const id = req.query.id as string;
 

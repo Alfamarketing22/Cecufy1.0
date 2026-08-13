@@ -9,11 +9,10 @@
     "dev:api": "tsx watch server/dev-api.ts",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate": "tsx scripts/migrate-to-postgres.ts"
   },
   "dependencies": {
-    "dotenv": "^17.4.2",
-    "express": "^4.22.2",
     "pg": "^8.23.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
@@ -24,8 +23,11 @@
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@vercel/node": "^5.9.9",
     "@vitejs/plugin-react": "^6.0.4",
     "concurrently": "^9.2.4",
+    "dotenv": "^17.4.2",
+    "express": "^4.22.2",
     "oxlint": "^1.75.0",
     "tsx": "^4.23.12",
     "typescript": "~6.0.2",

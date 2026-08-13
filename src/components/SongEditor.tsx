@@ -105,6 +105,8 @@ export function SongEditor({
 
   const keyOptions = majorKeys(accidental, notation);
   const displayedScale = formatKey(originalScale, accidental, notation);
+  // Ejemplo de acorde con bajo en el cifrado que esta usando la persona.
+  const bassExample = notation === "american" ? "A/E" : "LA/MI";
 
   return (
     <form className="card" onSubmit={handleSubmit}>
@@ -163,12 +165,13 @@ export function SongEditor({
           {mode === "chord" ? (
             <>
               Escribí los acordes tal como suenan en <strong>{displayedScale}</strong>. Se guardan como
-              grados relativos al tono, así la canción se puede transponer después.
+              grados relativos al tono, así la canción se puede transponer después. Para un acorde con
+              bajo usá la barra: <code>{bassExample}</code> — el bajo también se transpone.
             </>
           ) : (
             <>
               Grados relativos al tono: <code>I</code>, <code>IV</code>, <code>V</code>, <code>VIm</code>,{" "}
-              <code>IVmaj7</code>, <code>bVII</code>.
+              <code>IVmaj7</code>, <code>bVII</code>. Con bajo: <code>I/V</code>.
             </>
           )}
         </span>

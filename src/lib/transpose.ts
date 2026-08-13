@@ -133,9 +133,39 @@ function parseRomanToken(token: string): { degreeSemitone: number; suffix: strin
 }
 
 /**
+ * Aplica `fn` al acorde y a su bajo por separado.
+ *
+ * Los acordes con bajo se escriben "LA/MI" (o "A/E"): el bajo es una nota
+ * independiente y tiene que transponerse igual que la fundamental. Sin esto
+ * el bajo quedaria congelado en la tonalidad original.
+ */
+function mapSlash(token: string, fn: (part: string) => string): string {
+  const idx = token.indexOf("/");
+  if (idx === -1) return fn(token);
+  const head = token.slice(0, idx).trim();
+  const bass = token.slice(idx + 1).trim();
+  if (!head || !bass) return fn(token);
+  return `${fn(head)}/${fn(bass)}`;
+}
+
+function transposeSingle(
+  chord: string,
+  targetKey: string,
+  accidental: Accidental,
+  notation: Notation
+): string {
+  const parsed = parseRomanToken(chord);
+  if (!parsed) return chord;
+  const { root } = parseKey(targetKey);
+  const noteName = semitoneToNote(noteToSemitone(root) + parsed.degreeSemitone, accidental, notation);
+  return `${noteName}${parsed.suffix}`;
+}
+
+/**
  * Convierte un grado en numeros romanos al acorde real para la tonica elegida.
  * Los grados son cromaticos y absolutos respecto de la tonica, asi que solo
  * importa la raiz de `targetKey` (el sufijo "m" describe el modo de la cancion).
+ * Soporta acordes con bajo: "I/V" -> "DO/SOL".
  */
 export function transposeChord(
   chord: string,
@@ -143,11 +173,7 @@ export function transposeChord(
   accidental: Accidental = "sharp",
   notation: Notation = "latin"
 ): string {
-  const parsed = parseRomanToken(chord);
-  if (!parsed) return chord;
-  const { root } = parseKey(targetKey);
-  const noteName = semitoneToNote(noteToSemitone(root) + parsed.degreeSemitone, accidental, notation);
-  return `${noteName}${parsed.suffix}`;
+  return mapSlash(chord, (part) => transposeSingle(part, targetKey, accidental, notation));
 }
 
 export function transposeChordToken(
@@ -197,12 +223,7 @@ export function splitChord(chord: string): { root: string; suffix: string } | nu
   return { root: raw.slice(0, length), suffix: raw.slice(length) };
 }
 
-/**
- * Convierte un acorde real al grado relativo a la tonica.
- * Es el inverso de `transposeChord`: "SOL" en tono DO -> "V", "REm" -> "IIm".
- * Si el texto no parece un acorde se devuelve tal cual, para no perder lo escrito.
- */
-export function chordToDegree(chord: string, tonicKey: string): string {
+function chordToDegreeSingle(chord: string, tonicKey: string): string {
   const parts = splitChord(chord);
   if (!parts) return chord;
   const { root } = parseKey(tonicKey);
@@ -210,9 +231,20 @@ export function chordToDegree(chord: string, tonicKey: string): string {
   return `${SEMITONE_TO_DEGREE[interval]}${parts.suffix}`;
 }
 
+/**
+ * Convierte un acorde real al grado relativo a la tonica.
+ * Es el inverso de `transposeChord`: "SOL" en tono DO -> "V", "REm" -> "IIm".
+ * Con bajo, convierte las dos partes: "LA/MI" en tono LA -> "I/V".
+ * Si el texto no parece un acorde se devuelve tal cual, para no perder lo escrito.
+ */
+export function chordToDegree(chord: string, tonicKey: string): string {
+  return mapSlash(chord, (part) => chordToDegreeSingle(part, tonicKey));
+}
+
 /** True si el texto arranca con un nombre de nota valido de cualquiera de los cifrados. */
 export function looksLikeChord(text: string): boolean {
-  return splitChord(text) !== null;
+  const head = text.includes("/") ? text.slice(0, text.indexOf("/")) : text;
+  return splitChord(head) !== null;
 }
 
 /** Lista plana usada por selectores simples (editor, cancioneros). */

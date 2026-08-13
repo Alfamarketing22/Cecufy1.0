@@ -50,23 +50,55 @@ por git). Borrá ese archivo para volver al estado semilla.
 
 ## Despliegue en Vercel + Neon Postgres
 
-1. `vercel link` para conectar el proyecto.
-2. Agregá una base Postgres desde el Marketplace de Vercel (Neon) o
-   `vercel storage create postgres`, y linkeala al proyecto — esto define
-   automáticamente `DATABASE_URL` (o `POSTGRES_URL`) en las env vars.
-3. Corré el esquema una vez contra esa base:
-   ```bash
-   psql "$DATABASE_URL" -f db/schema.sql
-   ```
-   Si la base ya existía desde antes del campo `notation`, aplicá la migración:
-   ```bash
-   psql "$DATABASE_URL" -f db/migrations/001-add-notation.sql
-   ```
-4. Configurá `ADMIN_PASSWORD` en las env vars del proyecto (Vercel dashboard
-   o `vercel env add ADMIN_PASSWORD`).
-5. `vercel deploy` (o conectá el repo para deploys automáticos). El
-   `vercel.json` incluido agrega el rewrite de SPA para que rutas como
-   `/admin` o `/songbooks/:id` funcionen en refresh/deep-link.
+En producción **hace falta una base de datos**: el almacén en archivo no sirve
+en serverless, porque el disco es de sólo lectura y efímero. Sin `DATABASE_URL`
+la app desplegada fallaría al escribir.
+
+**1. Vincular el proyecto**
+
+```bash
+npx vercel login
+npx vercel link
+```
+
+**2. Crear la base de datos**
+
+Desde el dashboard de Vercel → pestaña *Storage* → *Create Database* → **Neon
+(Postgres)**, y conectala a este proyecto. Vercel define `DATABASE_URL` sola.
+
+**3. Configurar la clave del panel**
+
+```bash
+npx vercel env add ADMIN_PASSWORD
+```
+
+Usá una clave distinta de la local. Repetí el comando para cada entorno
+(production / preview / development) que quieras cubrir.
+
+**4. Traer las variables y subir la librería**
+
+```bash
+npx vercel env pull .env.production.local
+```
+
+```bash
+DATABASE_URL="$(grep '^DATABASE_URL=' .env.production.local | cut -d= -f2- | tr -d '\"')" npm run migrate
+```
+
+El script crea el esquema y sube todo lo que haya en `db/local-data.json`.
+Es idempotente: sin `--force` nunca pisa lo que ya esté en la base, así que se
+puede correr las veces que haga falta. Con `--force` actualiza los registros
+existentes. Al terminar informa cuántas filas quedaron y avisa si algún
+cancionero apunta a una canción que no existe.
+
+**5. Desplegar**
+
+```bash
+npx vercel deploy --prod
+```
+
+El `vercel.json` incluido agrega el rewrite de SPA para que rutas como `/admin`
+o `/songbooks/:id` funcionen al recargar o al entrar por link directo.
 
 ## Estructura
 
