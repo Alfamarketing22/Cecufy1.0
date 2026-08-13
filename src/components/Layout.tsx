@@ -80,7 +80,7 @@ export function Layout() {
             </button>
           </span>
           <Link to="/" className="logo-link" aria-label="Ir al inicio">
-            <Logo size={30} />
+            <Logo size={40} />
           </Link>
           <span className="topbar-right" style={{ width: 36 }} />
         </div>
