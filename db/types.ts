@@ -1,4 +1,4 @@
-import type { Song, SongInput, Songbook, SongbookInput } from "../src/types";
+import type { Song, SongInput, Songbook, SongbookInput } from "../src/types/index.js";
 
 export interface Store {
   listSongs(): Promise<Song[]>;

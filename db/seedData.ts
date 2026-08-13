@@ -1,4 +1,4 @@
-import type { Song, Songbook } from "../src/types";
+import type { Song, Songbook } from "../src/types/index.js";
 
 const now = new Date().toISOString();
 

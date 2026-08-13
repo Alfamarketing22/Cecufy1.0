@@ -13,7 +13,7 @@ import "dotenv/config";
 import { readFileSync, existsSync } from "fs";
 import path from "path";
 import { Pool } from "pg";
-import type { Song, Songbook } from "../src/types";
+import type { Song, Songbook } from "../src/types/index.js";
 
 const DATA_FILE = path.resolve(process.cwd(), "db", "local-data.json");
 const SCHEMA_FILE = path.resolve(process.cwd(), "db", "schema.sql");

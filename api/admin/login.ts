@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { createSessionToken } from "../../db/adminAuth";
+import { withErrors } from "../../db/http.js";
+import { createSessionToken } from "../../db/adminAuth.js";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default withErrors(async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Metodo no permitido" });
@@ -18,4 +19,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   return res.status(200).json({ token: createSessionToken(expected) });
-}
+});

@@ -1,7 +1,7 @@
 import { Pool } from "pg";
-import type { Song, SongInput, Songbook, SongbookInput } from "../src/types";
-import type { Store } from "./types";
-import { generateId } from "./id";
+import type { Song, SongInput, Songbook, SongbookInput } from "../src/types/index.js";
+import type { Store } from "./types.js";
+import { generateId } from "./id.js";
 
 let pool: Pool | null = null;
 

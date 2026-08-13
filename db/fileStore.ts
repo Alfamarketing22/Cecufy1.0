@@ -1,9 +1,9 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import path from "path";
-import type { Song, SongInput, Songbook, SongbookInput } from "../src/types";
-import type { Store } from "./types";
-import { generateId } from "./id";
-import { seedSongs, seedSongbooks } from "./seedData";
+import type { Song, SongInput, Songbook, SongbookInput } from "../src/types/index.js";
+import type { Store } from "./types.js";
+import { generateId } from "./id.js";
+import { seedSongs, seedSongbooks } from "./seedData.js";
 
 const DATA_DIR = path.resolve(process.cwd(), "db");
 const DATA_FILE = path.join(DATA_DIR, "local-data.json");

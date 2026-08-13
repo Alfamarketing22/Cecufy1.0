@@ -1,4 +1,4 @@
-import type { Store } from "./types";
+import type { Store } from "./types.js";
 
 let storePromise: Promise<Store> | null = null;
 
@@ -9,7 +9,7 @@ function isServerless(): boolean {
 
 async function loadStore(): Promise<Store> {
   if (process.env.DATABASE_URL) {
-    const { pgStore } = await import("./pgStore");
+    const { pgStore } = await import("./pgStore.js");
     return pgStore;
   }
 
@@ -23,7 +23,7 @@ async function loadStore(): Promise<Store> {
     );
   }
 
-  const { fileStore } = await import("./fileStore");
+  const { fileStore } = await import("./fileStore.js");
   return fileStore;
 }
 

@@ -1,8 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getStore } from "../../db/store";
-import { requireAdmin } from "../../db/adminAuth";
+import { withErrors } from "../../db/http.js";
+import { getStore } from "../../db/store.js";
+import { requireAdmin } from "../../db/adminAuth.js";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default withErrors(async function handler(req: VercelRequest, res: VercelResponse) {
   const store = await getStore();
   const id = req.query.id as string;
 
@@ -28,4 +29,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   res.setHeader("Allow", "GET, PUT, DELETE");
   return res.status(405).json({ error: "Metodo no permitido" });
-}
+});
