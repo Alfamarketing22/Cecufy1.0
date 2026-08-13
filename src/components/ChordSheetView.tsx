@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import type { Song, LyricLine } from "../types";
+import { splitLineIntoWords } from "../lib/chordSheet";
 import { transposeChord, type Accidental, type Notation } from "../lib/transpose";
 
 function LyricLineView({
@@ -13,21 +13,25 @@ function LyricLineView({
   accidental: Accidental;
   notation: Notation;
 }) {
-  const hasChords = line.chords.length > 0;
+  const words = splitLineIntoWords(line);
+  const isBlank = words.every((w) => w.chords.length === 0 && w.text.trim() === "");
+
+  if (isBlank) {
+    return <div className="chord-line-spacer" aria-hidden="true" />;
+  }
+
   return (
-    <div className="lyrics-line">
-      {hasChords ? (
-        <div className="chords-row">
-          {line.chords.map((token, i) => (
-            <span key={i} className="chord" style={{ left: `${token.position}ch` }}>
-              {transposeChord(token.chord, targetKey, accidental, notation)}
-            </span>
-          ))}
-        </div>
-      ) : (
-        <div className="chords-row chord-placeholder" />
-      )}
-      <div className="text-row">{line.text || " "}</div>
+    <div className="chord-line">
+      {words.map((word, i) => (
+        <span className="chord-word" key={i}>
+          <span className="chord-word-chord">
+            {word.chords.length > 0
+              ? word.chords.map((c) => transposeChord(c.chord, targetKey, accidental, notation)).join(" ")
+              : " "}
+          </span>
+          <span className="chord-word-text">{word.text}</span>
+        </span>
+      ))}
     </div>
   );
 }
@@ -44,34 +48,6 @@ export function ChordSheetView({
   notation?: Notation;
 }) {
   const { lines, sections } = song.lyrics;
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  // La letra prioriza tamaño legible, no evitar el scroll a toda costa
-  // (estilo Cifra Club): el font-size queda fijo por CSS y una linea larga
-  // simplemente se desliza. Esto solo marca cuando hay mas para el costado.
-  useEffect(() => {
-    const el = sheetRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      setCanScrollLeft(el.scrollLeft > 2);
-      setCanScrollRight(el.scrollLeft < maxScroll - 2);
-    };
-
-    update();
-    el.addEventListener("scroll", update, { passive: true });
-
-    const resizeObserver = new ResizeObserver(update);
-    resizeObserver.observe(el);
-
-    return () => {
-      el.removeEventListener("scroll", update);
-      resizeObserver.disconnect();
-    };
-  }, [song.id, targetKey, accidental, notation]);
 
   // Agrupa las lineas por seccion; lo que quede fuera de rango va a un bloque suelto.
   const ordered = [...sections].sort((a, b) => a.startLine - b.startLine);
@@ -91,40 +67,34 @@ export function ChordSheetView({
     .filter(({ index }) => !claimed.has(index));
 
   return (
-    <div
-      className={`lyrics-scroll${canScrollLeft ? " can-scroll-left" : ""}${
-        canScrollRight ? " can-scroll-right" : ""
-      }`}
-    >
-      <div className="lyrics-sheet" ref={sheetRef}>
-        {blocks.map(
-          (block, i) =>
-            block.items.length > 0 && (
-              <section className="lyrics-section" key={`${block.name}-${i}`}>
-                <div className="section-header">
-                  <span className="section-badge">{block.name}</span>
-                </div>
-                {block.items.map(({ index, line }) => (
-                  <LyricLineView
-                    key={index}
-                    line={line}
-                    targetKey={targetKey}
-                    accidental={accidental}
-                    notation={notation}
-                  />
-                ))}
-              </section>
-            )
-        )}
+    <div className="lyrics-sheet">
+      {blocks.map(
+        (block, i) =>
+          block.items.length > 0 && (
+            <section className="lyrics-section" key={`${block.name}-${i}`}>
+              <div className="section-header">
+                <span className="section-badge">{block.name}</span>
+              </div>
+              {block.items.map(({ index, line }) => (
+                <LyricLineView
+                  key={index}
+                  line={line}
+                  targetKey={targetKey}
+                  accidental={accidental}
+                  notation={notation}
+                />
+              ))}
+            </section>
+          )
+      )}
 
-        {orphans.length > 0 && (
-          <section className="lyrics-section">
-            {orphans.map(({ index, line }) => (
-              <LyricLineView key={index} line={line} targetKey={targetKey} accidental={accidental} notation={notation} />
-            ))}
-          </section>
-        )}
-      </div>
+      {orphans.length > 0 && (
+        <section className="lyrics-section">
+          {orphans.map(({ index, line }) => (
+            <LyricLineView key={index} line={line} targetKey={targetKey} accidental={accidental} notation={notation} />
+          ))}
+        </section>
+      )}
     </div>
   );
 }

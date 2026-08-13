@@ -1402,11 +1402,6 @@ h3 {
    Hoja de acordes
    ========================================================================== */
 
-/* Envoltorio del desvanecido de scroll: ver reglas de .lyrics-scroll mas abajo. */
-.lyrics-scroll {
-  position: relative;
-}
-
 .lyrics-sheet {
   padding: 34px;
   background: var(--pane);
@@ -1416,16 +1411,11 @@ h3 {
   font-family: var(--font-mono);
   font-size: 0.9375rem;
   line-height: 1.62;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
 }
 
 /* Mobile, estilo Cifra Club: la letra grande y comoda de leer manda.
    Se saca la tarjeta (fondo, borde, sombra, relleno lateral) para que el
-   texto use casi todo el ancho de la pantalla; una linea que no entra
-   simplemente se desliza, en vez de forzar una letra chiquita para que
-   quepa siempre. */
+   texto use casi todo el ancho de la pantalla. */
 @media (max-width: 640px) {
   .lyrics-sheet {
     padding: 18px 0;
@@ -1435,72 +1425,6 @@ h3 {
     box-shadow: none;
     font-size: 1.0625rem;
     line-height: 1.7;
-  }
-}
-
-/* Senal de que hay mas contenido a los costados: un desvanecido que solo
-   aparece cuando efectivamente se puede deslizar hacia ese lado (lo activa
-   ChordSheetView segun la posicion real del scroll). Sin esto, una linea
-   larga se ve "cortada" en vez de "hay mas, desliza". */
-.lyrics-scroll::before,
-.lyrics-scroll::after {
-  content: "";
-  position: absolute;
-  top: 1px;
-  bottom: 1px;
-  width: 28px;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity var(--dur) var(--ease-out);
-}
-
-.lyrics-scroll::before {
-  left: 1px;
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  background: linear-gradient(to right, var(--ink-1), transparent);
-}
-
-.lyrics-scroll::after {
-  right: 1px;
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-  background: linear-gradient(to left, var(--ink-1), transparent);
-}
-
-/* Sin tarjeta en mobile: el desvanecido va contra el fondo de la pagina,
-   sin esquinas redondeadas ni el hueco del borde de 1px. */
-@media (max-width: 640px) {
-  .lyrics-scroll::before,
-  .lyrics-scroll::after {
-    top: 0;
-    bottom: 0;
-    width: 24px;
-    border-radius: 0;
-  }
-
-  .lyrics-scroll::before {
-    left: 0;
-    background: linear-gradient(to right, var(--ink-0), transparent);
-  }
-
-  .lyrics-scroll::after {
-    right: 0;
-    background: linear-gradient(to left, var(--ink-0), transparent);
-  }
-}
-
-.lyrics-scroll.can-scroll-left::before {
-  opacity: 0.9;
-}
-
-.lyrics-scroll.can-scroll-right::after {
-  opacity: 0.9;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lyrics-scroll::before,
-  .lyrics-scroll::after {
-    transition: none;
   }
 }
 
@@ -1529,30 +1453,39 @@ h3 {
   letter-spacing: var(--track-micro);
 }
 
-.lyrics-line {
-  margin-bottom: 3px;
+/* Cada linea musical es una fila que envuelve "palabras" acorde+letra,
+   como un parrafo normal. Esto reemplaza el viejo esquema de posicion
+   absoluta por caracter: ese obligaba a elegir entre letra chica o scroll
+   horizontal para cualquier linea larga. Envolviendo por fragmento, el
+   navegador reparte las palabras solo y el acorde nunca se separa de su
+   silaba, sin importar cuanto achique la pantalla. */
+.chord-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: 0.55em;
+  row-gap: 0.15em;
+  margin-bottom: 8px;
 }
 
-.chords-row {
-  position: relative;
-  height: 1.4em;
+.chord-line-spacer {
+  height: 1em;
+}
+
+.chord-word {
+  display: inline-flex;
+  flex-direction: column;
   white-space: pre;
 }
 
-.chords-row.chord-placeholder {
-  height: 0;
-}
-
-.chord {
-  position: absolute;
-  top: 0;
+.chord-word-chord {
+  min-height: 1.35em;
   color: var(--accent);
   font-weight: 700;
-  white-space: pre;
+  line-height: 1.35;
 }
 
-.text-row {
-  white-space: pre;
+.chord-word-text {
   color: var(--text);
 }
 
@@ -1660,7 +1593,7 @@ h3 {
     padding: 0;
   }
 
-  .chord,
+  .chord-word-chord,
   .section-badge {
     color: #444 !important;
     background: transparent !important;
