@@ -9,11 +9,17 @@
  * correr las veces que haga falta.
  */
 
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
 import { readFileSync, existsSync } from "fs";
 import path from "path";
 import { Pool } from "pg";
 import type { Song, Songbook } from "../src/types/index.js";
+
+// `.env.migrate` es un archivo aparte a proposito: guarda la cadena de la base
+// de produccion sin que el servidor de desarrollo la lea por accidente y
+// termine escribiendo sobre los datos reales. Tiene prioridad sobre `.env`.
+loadEnv({ path: ".env.migrate" });
+loadEnv();
 
 const DATA_FILE = path.resolve(process.cwd(), "db", "local-data.json");
 const SCHEMA_FILE = path.resolve(process.cwd(), "db", "schema.sql");
@@ -27,9 +33,14 @@ function fail(message: string): never {
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   fail(
-    "Falta DATABASE_URL.\n" +
-      "  Traela de Vercel con:  vercel env pull .env\n" +
-      "  o exportala a mano:    export DATABASE_URL='postgres://...'"
+    "Falta DATABASE_URL.\n\n" +
+      "  Vercel marca las variables de las integraciones como sensibles, asi que\n" +
+      "  `vercel env pull` devuelve un marcador, no la cadena real.\n\n" +
+      "  Copiala del dashboard (proyecto -> Storage -> la base -> connection\n" +
+      "  string, o desde Neon) y pegala en un archivo .env.migrate:\n\n" +
+      "      DATABASE_URL=postgres://usuario:clave@host/basededatos?sslmode=require\n\n" +
+      "  Ese archivo esta en .gitignore y el servidor de desarrollo no lo lee,\n" +
+      "  asi que no hay riesgo de escribir en produccion sin querer."
   );
 }
 
