@@ -246,19 +246,13 @@ h3 {
   align-items: center;
 }
 
-.logo-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 2px 10px rgba(232, 222, 173, 0.16);
-}
-
+/* Sin badge circular: el isotipo solo, en el color de acento, directo
+   sobre el fondo oscuro. La marca original no es circular y forzarla
+   dentro de un circulo la recortaba mal. */
 .logo-mark {
   display: block;
-  background-color: var(--accent-ink);
+  flex-shrink: 0;
+  background-color: var(--accent);
   -webkit-mask: url("/logo-mark.png") center / contain no-repeat;
   mask: url("/logo-mark.png") center / contain no-repeat;
 }
@@ -1031,7 +1025,8 @@ h3 {
 }
 
 .chip-btn {
-  padding: 6px 12px;
+  min-height: 36px;
+  padding: 6px 14px;
   background: var(--ink-3);
   border: 1px solid transparent;
   border-radius: var(--radius-pill);
@@ -1075,6 +1070,7 @@ h3 {
   line-height: 1.7;
   white-space: pre;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   resize: vertical;
 }
 
@@ -1406,6 +1402,11 @@ h3 {
    Hoja de acordes
    ========================================================================== */
 
+/* Envoltorio del desvanecido de scroll: ver reglas de .lyrics-scroll mas abajo. */
+.lyrics-scroll {
+  position: relative;
+}
+
 .lyrics-sheet {
   padding: 34px;
   background: var(--pane);
@@ -1416,12 +1417,74 @@ h3 {
   font-size: 0.9375rem;
   line-height: 1.62;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 @media (max-width: 640px) {
   .lyrics-sheet {
     padding: 20px 16px;
     font-size: 0.875rem;
+  }
+}
+
+/* Telefonos angostos: menos relleno y letra un poco mas chica para que
+   entren mas caracteres antes de necesitar deslizar. */
+@media (max-width: 400px) {
+  .lyrics-sheet {
+    padding: 16px 12px;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Senal de que hay mas contenido a los costados: un desvanecido que solo
+   aparece cuando efectivamente se puede deslizar hacia ese lado (lo activa
+   ChordSheetView segun la posicion real del scroll). Sin esto, una linea
+   larga se ve "cortada" en vez de "hay mas, desliza". */
+.lyrics-scroll::before,
+.lyrics-scroll::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  width: 28px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+}
+
+@media (max-width: 400px) {
+  .lyrics-scroll::before,
+  .lyrics-scroll::after {
+    width: 20px;
+  }
+}
+
+.lyrics-scroll::before {
+  left: 1px;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  background: linear-gradient(to right, var(--ink-1), transparent);
+}
+
+.lyrics-scroll::after {
+  right: 1px;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background: linear-gradient(to left, var(--ink-1), transparent);
+}
+
+.lyrics-scroll.can-scroll-left::before {
+  opacity: 0.9;
+}
+
+.lyrics-scroll.can-scroll-right::after {
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lyrics-scroll::before,
+  .lyrics-scroll::after {
+    transition: none;
   }
 }
 
