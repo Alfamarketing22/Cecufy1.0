@@ -1421,19 +1421,20 @@ h3 {
   overscroll-behavior-x: contain;
 }
 
+/* Mobile, estilo Cifra Club: la letra grande y comoda de leer manda.
+   Se saca la tarjeta (fondo, borde, sombra, relleno lateral) para que el
+   texto use casi todo el ancho de la pantalla; una linea que no entra
+   simplemente se desliza, en vez de forzar una letra chiquita para que
+   quepa siempre. */
 @media (max-width: 640px) {
   .lyrics-sheet {
-    padding: 20px 16px;
-    font-size: 0.875rem;
-  }
-}
-
-/* Telefonos angostos: menos relleno y letra un poco mas chica para que
-   entren mas caracteres antes de necesitar deslizar. */
-@media (max-width: 400px) {
-  .lyrics-sheet {
-    padding: 16px 12px;
-    font-size: 0.8125rem;
+    padding: 18px 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 1.0625rem;
+    line-height: 1.7;
   }
 }
 
@@ -1454,13 +1455,6 @@ h3 {
   transition: opacity var(--dur) var(--ease-out);
 }
 
-@media (max-width: 400px) {
-  .lyrics-scroll::before,
-  .lyrics-scroll::after {
-    width: 20px;
-  }
-}
-
 .lyrics-scroll::before {
   left: 1px;
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
@@ -1471,6 +1465,28 @@ h3 {
   right: 1px;
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   background: linear-gradient(to left, var(--ink-1), transparent);
+}
+
+/* Sin tarjeta en mobile: el desvanecido va contra el fondo de la pagina,
+   sin esquinas redondeadas ni el hueco del borde de 1px. */
+@media (max-width: 640px) {
+  .lyrics-scroll::before,
+  .lyrics-scroll::after {
+    top: 0;
+    bottom: 0;
+    width: 24px;
+    border-radius: 0;
+  }
+
+  .lyrics-scroll::before {
+    left: 0;
+    background: linear-gradient(to right, var(--ink-0), transparent);
+  }
+
+  .lyrics-scroll::after {
+    right: 0;
+    background: linear-gradient(to left, var(--ink-0), transparent);
+  }
 }
 
 .lyrics-scroll.can-scroll-left::before {

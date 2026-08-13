@@ -32,9 +32,6 @@ function LyricLineView({
   );
 }
 
-/** Letra minima antes de resignarse y dejar que la linea se deslice. */
-const MIN_FONT_PX = 9.5;
-
 export function ChordSheetView({
   song,
   targetKey,
@@ -51,51 +48,29 @@ export function ChordSheetView({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
+  // La letra prioriza tamaño legible, no evitar el scroll a toda costa
+  // (estilo Cifra Club): el font-size queda fijo por CSS y una linea larga
+  // simplemente se desliza. Esto solo marca cuando hay mas para el costado.
   useEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
 
-    const updateScrollFade = () => {
+    const update = () => {
       const maxScroll = el.scrollWidth - el.clientWidth;
       setCanScrollLeft(el.scrollLeft > 2);
       setCanScrollRight(el.scrollLeft < maxScroll - 2);
     };
 
-    // Los acordes se ubican con `left: Nch`, una unidad ligada al ancho del
-    // caracter en la tipografia monoespaciada actual. Por eso reducir el
-    // font-size entero de la hoja reescala todo el sistema de coordenadas
-    // sin romper la alineacion: es mas seguro que un transform: scale.
-    const fitToWidth = () => {
-      el.style.fontSize = ""; // vuelve al tamaño base de la hoja de estilos
-      const available = el.clientWidth;
-      const needed = el.scrollWidth;
-      if (available <= 0 || needed <= available) return;
-
-      const baseFontSize = parseFloat(getComputedStyle(el).fontSize);
-      const scale = available / needed;
-      const target = Math.max(MIN_FONT_PX, baseFontSize * scale);
-      // Un pixel de margen: al re-envolver el texto en el nuevo tamaño el
-      // ancho real puede variar unas decimas por redondeo de subpixeles.
-      el.style.fontSize = `${(target - 0.3).toFixed(2)}px`;
-    };
-
-    const update = () => {
-      fitToWidth();
-      updateScrollFade();
-    };
-
     update();
-    el.addEventListener("scroll", updateScrollFade, { passive: true });
+    el.addEventListener("scroll", update, { passive: true });
 
     const resizeObserver = new ResizeObserver(update);
     resizeObserver.observe(el);
 
     return () => {
-      el.removeEventListener("scroll", updateScrollFade);
+      el.removeEventListener("scroll", update);
       resizeObserver.disconnect();
     };
-    // Reevalua cuando cambia el tono/cifrado (los acordes cambian de ancho)
-    // o la cancion mostrada.
   }, [song.id, targetKey, accidental, notation]);
 
   // Agrupa las lineas por seccion; lo que quede fuera de rango va a un bloque suelto.
